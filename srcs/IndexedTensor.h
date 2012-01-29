@@ -127,11 +127,6 @@ namespace Mosquito {
       };
 
       /**
-       * \brief Labels for the indices.
-       */
-      char* labels;
-
-      /**
        * \brief The type of this IndexedTensor.
        */
       TensorType indexedType;
@@ -162,22 +157,6 @@ namespace Mosquito {
        * \brief A scalar to multiply by.
        */
       double multiplicand;
-
-      /**
-       * \brief Returns the permutation vector which defines how to
-       * rearrange indices.
-       *
-       * Used so that one may properly perform Ricci calculus. In
-       * particular one wants to be able to perform operations like:
-       * \f[
-       *  h_{ab} = T^a{}_b+U_b{}^a
-       * \f]
-       * \param labels2 The indexes of the other (second) tensor.
-       * \param permute The vector to store the permutation in.
-       * \retval permutable A boolean which states whether labels2 is a
-       * permutation of this tensor's indexes or not.
-       */
-      bool permutation(const char* labels2, int* permute) const;
 
       /**
        * \brief Builds the branch of contractions.

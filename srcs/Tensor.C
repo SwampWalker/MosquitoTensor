@@ -3,7 +3,6 @@
 #include "Tensor.h"
 #include <cstdlib>
 #include <cassert>
-#include <iostream>
 #define DIMENSION 4
 
 using namespace Mosquito;
@@ -21,6 +20,7 @@ Tensor::Tensor(const char* indexString, double* data)
 
   // Initialise.
   types = new IndexType[rank];
+  labels = new char[rank];
 
   // Initialize components array if it is not given
   if(!data) {
@@ -41,6 +41,7 @@ Tensor::Tensor(const char* indexString, double* data)
     } else {
       assert(false);
     }
+    labels[i] = indexString[2*i + 1];
   }
 }
 
@@ -65,15 +66,12 @@ Tensor::Tensor(int Rank, const IndexType* Types) {
 
 void Tensor::init(int Rank, const IndexType* Types) {
   rank = Rank;
-  if (rank > 0) {
-    types = new IndexType[rank];
-    components = new double[ipow(DIMENSION,rank)];
-  } else {
-    types = new IndexType[1]; // To avoid double free...
-    components = new double[1];
-  }
+  types = new IndexType[rank];
+  labels = new char[rank];
+  components = new double[ipow(DIMENSION,rank)];
   for (int i = 0; i < rank; i++) {
     types[i] = Types[i];
+    labels[i] = i + 1; // Which is not good ascii, but we don't want to make a mess.
   }
   for (int i = 0; i < ipow(DIMENSION,rank); i++) components[i] = 0.0;
 }
@@ -81,9 +79,11 @@ void Tensor::init(int Rank, const IndexType* Types) {
 Tensor::Tensor(const Tensor &original) {
   rank = original.rank;
   types = new IndexType[rank];
+  labels = new char[rank];
   components = new double[ipow(DIMENSION,rank)];
   for (int i = 0; i < rank; i++) {
     types[i] = original.types[i];
+    labels[i] = original.labels[i];
   }
   for (int i = 0; i < ipow(DIMENSION,rank); i++) {
     components[i] = original.components[i];
@@ -92,22 +92,31 @@ Tensor::Tensor(const Tensor &original) {
 
 Tensor::Tensor(const IndexedTensor &original) {
   // Copy all the data.
+  // todo
   rank = original.getRank();
   types = new IndexType[rank];
+  labels = new char[rank];
   components = new double[ipow(DIMENSION,rank)];
   const IndexType* originalTypes = original.getTypes();
+  const char* originalLabels = original.getLabels();
   for (int i = 0; i < rank; i++) {
     types[i] = originalTypes[i];
+    labels[i] = originalLabels[i];
   }
-  int indices[rank];
-  for (int i = 0; i < ipow(DIMENSION,rank); i++) {
-    indexToIndices(i, indices);
-    components[i] = original.computeComponent(indices);
+  if (rank > 0) {
+    int indices[rank];
+    for (int i = 0; i < ipow(DIMENSION,rank); i++) {
+      indexToIndices(i, indices);
+      components[i] = original.computeComponent(indices);
+    }
+  } else {
+    components[0] = original.computeComponent(0);
   }
 }
 
 Tensor::~Tensor() {
   delete[] types;
+  delete[] labels;
   if(deleteComponents)
     delete[] components;
 }
@@ -199,8 +208,26 @@ Tensor & Tensor::operator=(const Tensor &tensor) {
   for (int i = 0; i < rank; i++) {
     assert(types[i] == tensor.types[i]);
   }
+
+  // Get the labelling permutation.
+  const char* labels2 = tensor.getLabels();
+  int permute[rank];
+  bool permutable = permutation(labels2, permute);
+  assert(permutable);
+
+  int indices[rank];
+  int indices2[rank];
   for (int i = 0; i < ipow(DIMENSION, rank); i++) {
-    components[i] = tensor.components[i];
+    indexToIndices(i, indices);
+    for (int j = 0; j < rank; j++) indices2[permute[j]] = indices[j];
+    components[i] = tensor(indices2);
+  }
+  return *this;
+}
+
+Tensor & Tensor::relabel(const char *newLabels) {
+  for (int i = 0; i < rank; i++) {
+    labels[i] = newLabels[i];
   }
   return *this;
 }

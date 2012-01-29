@@ -106,3 +106,22 @@ int TensorBase::getRank() const {
 const TensorBase::IndexType* TensorBase::getTypes() const {
   return types;
 }
+
+const char* TensorBase::getLabels() const {
+  return labels;
+}
+
+bool TensorBase::permutation(const char* labels2, int* permute) const {
+  for (int i = 0; i < rank; i++) {
+    bool indexFound = false;
+    assert(labels[i]); // No NULL labels!
+    for (int j = 0; !indexFound && labels2[j] != '\0' ; j++) {
+      if (labels[i] == labels2[j]) {
+        permute[i] = j;
+        indexFound = true;
+      }
+    }
+    if (!indexFound) return false;
+  }
+  return true;
+}

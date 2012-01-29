@@ -182,21 +182,6 @@ double IndexedTensor::computeComponent(const int* indices) const {
   return 0;
 }
 
-bool IndexedTensor::permutation(const char* labels2, int* permute) const {
-  for (int i = 0; i < rank; i++) {
-    bool indexFound = false;
-    assert(labels[i]); // No NULL labels!
-    for (int j = 0; !indexFound && labels2[j] != '\0' ; j++) {
-      if (labels[i] == labels2[j]) {
-        permute[i] = j;
-        indexFound = true;
-      }
-    }
-    if (!indexFound) return false;
-  }
-  return true;
-}
-
 IndexedTensor * IndexedTensor::contract(int index1, int index2,
     int contractionsNeeded) {
   if (contractionsNeeded > 1) {

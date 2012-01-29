@@ -161,6 +161,13 @@ namespace Mosquito {
       friend Tensor operator*(const double scalar, 
           const Tensor &tensor) { return tensor*scalar;};
 
+      /**
+       * Relabels the Tensor, returning a reference to itself.
+       * \param newLabels The new labels.
+       * \retval thisReference A reference to this object.
+       */
+      Tensor& relabel(const char* newLabels);
+
     private:
 
       /**

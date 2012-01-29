@@ -30,8 +30,36 @@ class TestTensor: public Tensor {
     void runScalarMultiplyTest();
     void runTensorMultiplyTest();
     void runContractionTest();
+    void runInitialIndexingTest();
     double abs(double x);
 };
+
+void TestTensor::runInitialIndexingTest() {
+  Tensor A("_a_b");
+  for (int i = 0; i < 4; i++)
+    for (int j = 0; j < 4; j++)
+      A(i,j) = 4*i+j;
+
+  Tensor B("_a_b");
+  Tensor C("_a_b");
+
+  B = A["ab"];
+  C = A["ba"];
+
+  for (int i = 0; i < 4; i++)
+    for (int j = 0; j < 4; j++) {
+      assert(A(i, j) == B(i, j));
+      assert(A(i, j) == C(j, i));
+    }
+  
+  Tensor D("_b_a");
+  D.relabel("ab") = C["ab"];
+  for (int i = 0; i < 4; i++)
+    for (int j = 0; j < 4; j++) {
+      assert(C(i, j) == D(i, j));
+      assert(A(i, j) == D(j, i)); // a bit redundant...
+    }
+}
 
 void TestTensor::runContractionTest() {
   Tensor::IndexType vector = Tensor::UP;
@@ -74,7 +102,7 @@ void TestTensor::runContractionTest() {
   test0(2,2) = 3;
   test0(3,3) = 4;
   test0(3,4) = -100000;
-  scalar4[""] = test0["aa"];
+  scalar4 = test0["aa"];
   assert(scalar4(0) == 0.);
 
   Tensor etaUp("^a^b");
@@ -162,6 +190,9 @@ void TestTensor::runScalarMultiplyTest() {
 void TestTensor::runTests() {
   std::cout << "Running tests on class Tensor.\n";
   int nTests = 0;
+
+  runInitialIndexingTest();
+  nTests++; std::cout << ".\n";
 
   runIndexingTest();
   nTests++; std::cout << ".\n";

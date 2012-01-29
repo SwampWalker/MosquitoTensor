@@ -131,6 +131,12 @@ namespace Mosquito {
        */
       void indexToIndices(int index, int* indices) const;
 
+      /**
+       * Returns a const pointer to the labels.
+       * \retval The labels of the tensor.
+       */
+      const char* getLabels() const;
+
     protected:
 
       /**
@@ -157,6 +163,29 @@ namespace Mosquito {
        * \brief The rank of the tensor.
        */
       int rank;
+
+      /**
+       * \brief Labels for the indices.
+       */
+      char* labels;
+
+      /**
+       * \brief Returns the permutation vector which defines how to
+       * rearrange indices.
+       *
+       * Used so that one may properly perform Ricci calculus. In
+       * particular one wants to be able to perform operations like:
+       * \f[
+       *  h_{ab} = T^a{}_b+U_b{}^a
+       * \f]
+       * Specifically, permute[i] is the position in the second Tensor
+       * of the i'th index of the first tensor.
+       * \param labels2 The indexes of the other (second) tensor.
+       * \param permute The vector to store the permutation in.
+       * \retval permutable A boolean which states whether labels2 is a
+       * permutation of this tensor's indexes or not.
+       */
+      bool permutation(const char* labels2, int* permute) const;
 
   };
 
