@@ -1,5 +1,6 @@
 #include "TensorBase.h"
 #include <cstdarg>
+#include <cassert>
 
 #define DIMENSION 4
 
@@ -7,6 +8,11 @@ using namespace Mosquito;
 
 double & TensorBase::operator()(int* indices) const {
   return components[index(indices)];
+}
+
+double & TensorBase::operator()() const {
+  assert(rank == 0);
+  return components[0];
 }
 
 double & TensorBase::operator()(int i1, ...) const {
@@ -67,7 +73,7 @@ int TensorBase::setComponents(const double* v)
   return i+1;
 }
 
-int TensorBase::getComponents(double* v)
+int TensorBase::getComponents(double* v) const
 {
   int i;
   for (i = 0; i < ipow(DIMENSION, rank); i++) {
@@ -78,6 +84,11 @@ int TensorBase::getComponents(double* v)
 
 double * TensorBase::getComponents() const {
   return components;
+}
+
+int TensorBase::getNumComponents() const
+{
+  return ipow(DIMENSION, rank);
 }
 
 int TensorBase::ipow(int i, int j) const {

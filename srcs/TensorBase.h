@@ -54,7 +54,14 @@ namespace Mosquito {
        * \param array A pointer to a double array for the data
        * \retval num The number of components copied
        */
-      int getComponents(double* array);
+      int getComponents(double* array) const;
+
+      /**
+       * \brief The number of components in the tensor
+       *
+       * \retval num The number of components
+       */
+      int getNumComponents() const;
 
       /**
        * \brief Copy all components from an array of doubles
@@ -66,6 +73,14 @@ namespace Mosquito {
        * \retval num The number of components copied
        */
       int setComponents(const double* array);
+
+      /**
+       * \brief Returns a reference to the scalar value.
+       *
+       * The object must be a scalar or this will fail.
+       * \retval value The scalar value.
+       */
+      double & operator()() const;
 
       /**
        * \brief Returns a reference to the indexed component.
